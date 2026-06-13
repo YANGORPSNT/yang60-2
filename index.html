@@ -120,36 +120,36 @@
             z-index: 3;
         }
 
-        /* 調整掉落物件樣式，使其能完美容納文字與圖示 */
+        /* 🛠️ 優化後的掉落物件：自動適應文字寬度，並以中心為基準點下落 */
         .falling-item {
             position: absolute;
-            width: 70px;
-            height: 70px;
+            width: max-content; 
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 2;
+            transform: translateX(-50%); /* 確保物件中心與隨機X軸完全對齊 */
         }
         .item-icon {
-            font-size: 24px;
+            font-size: 26px;
             line-height: 1;
         }
         .item-text {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 1px 4px;
-            border-radius: 4px;
-            margin-top: 2px;
-            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 3px 6px;
+            border-radius: 6px;
+            margin-top: 4px;
+            white-space: nowrap; /* 確保文字絕不換行被切斷 */
             color: #1b5e20;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
         }
-        /* 障礙物特殊顏色 */
         .falling-item.bad-item .item-text {
             color: #b71c1c;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         .ctrl-btn {
@@ -292,11 +292,12 @@
 
                 let itemRect = item.el.getBoundingClientRect();
                 
+                // 🛠️ 使用最新標準的動態交疊碰撞檢測（AABB），完美配合文字伸縮寬度
                 if (
                     itemRect.bottom >= basketRect.top &&
                     itemRect.top <= basketRect.bottom &&
-                    itemRect.right >= (basketRect.left - 10) &&
-                    itemRect.left <= (basketRect.right + 10)
+                    itemRect.right >= basketRect.left &&
+                    itemRect.left <= basketRect.right
                 ) {
                     handleCatch(item);
                     item.el.remove();
@@ -324,7 +325,10 @@
             `;
             
             const areaWidth = gameArea.clientWidth || window.innerWidth;
-            const randomX = Math.floor(Math.random() * (Math.min(areaWidth, 450) - 80)) + 10;
+            const maxRange = Math.min(areaWidth, 450);
+            
+            // 🛠️ 調整生成邊界（兩邊各預留 60px），防止長文本在螢幕邊緣出生時被切掉
+            const randomX = Math.floor(Math.random() * (maxRange - 120)) + 60;
             el.style.left = randomX + 'px';
             el.style.top = '-80px';
             
