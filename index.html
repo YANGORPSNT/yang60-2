@@ -171,7 +171,7 @@
         <h1>YANG 60</h1>
         <h2>楊善創新 震志同行</h2>
         <div style="font-size: 60px; margin: 20px 0;">🌱</div>
-        <div class="intro-text" style="max-width: 300px;">
+        <div class="intro-text" style="max-width: 380px;">
             歡迎來到<b>「灌溉早苗」</b>！<br><br>
             點擊或長按螢幕<b>左/右兩側</b>來移動「早苗計劃」籃。 接住各種跨專業團隊角色，讓早苗健康成長！<br><br>
             ⚠️ 提示：連續接住<b>不同專業</b>可觸發 <b>彼此搭配 Combo</b> 分數加倍！切記避開「孤軍作戰」！
@@ -198,7 +198,7 @@
         <h1>楊善創新 震志同行</h1>
         <h2>傳楊價值 大成功！「早苗」已茁壯成長！</h2>
         <div style="font-size: 70px; margin: 15px 0;">🌳</div>
-        <div class="intro-text" style="max-width: 320px; font-size: 15px;">
+        <div class="intro-text" style="max-width: 380px; font-size: 15px;">
             恭喜！您成功透過早苗計劃跨專業團隊<b>「彼此搭配」</b>，讓早苗計劃的種子長成庇蔭社區的大樹！<br><br>
             「到校學前康復服務-早苗計劃」全賴跨專業團隊(心理學家、物理治療師、職業治療師、言語治療師、特幼兒工作員、社工)與家長及學校緊密攜手合作，進一步展現機構「彼此搭配」價值。<br><br>
             <b>慶祝 YMMSS 60 周年快樂！</b>
@@ -227,7 +227,6 @@
         let gameLoopInterval;
         let spawnInterval;
 
-        // 更新掉落物數據，將專業名稱與圖示綁定
         const itemTypes = [
             { icon: '🧑‍⚕️', label: 'EP 心理學家', type: 'ep', score: 1 },
             { icon: '🧑‍🤝‍🧑', label: 'SW 社工', type: 'sw', score: 1 },
@@ -319,7 +318,6 @@
             const el = document.createElement('div');
             el.className = `falling-item ${proto.type === 'bad' ? 'bad-item' : ''}`;
             
-            // 結構化內部 HTML，包含圖示與專職文字
             el.innerHTML = `
                 <div class="item-icon">${proto.icon}</div>
                 <div class="item-text">${proto.label}</div>
@@ -348,7 +346,6 @@
                 lastItemType = '';
                 comboText.style.display = 'none';
             } else {
-                // 核心「彼此搭配」機制：連續接到不同的專職，觸發 Combo 分數加倍
                 if (lastItemType && lastItemType !== item.type) {
                     score += item.score * 2; 
                     showCombo();
