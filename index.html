@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>YANG 60 - 灌溉早苗</title>
     <style>
         :root {
@@ -39,7 +39,7 @@
         h1 { margin: 5px 0; color: var(--primary-color); font-size: 28px; }
         h2 { margin: 5px 0; color: #555; font-size: 18px; font-weight: normal; }
         
-        button {
+        .start-btn {
             background-color: var(--accent-color);
             color: white;
             border: none;
@@ -50,6 +50,8 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             font-weight: bold;
             margin-top: 20px;
+            z-index: 20; /* 確保按鈕在最上層 */
+            position: relative;
         }
         
         .intro-text {
@@ -152,7 +154,7 @@
             點擊或長按螢幕<b>左/右兩側</b>來移動「彼此搭配」籃。接住水滴、陽光與專業徽章，讓早苗健康成長！<br><br>
             ⚠️ 提示：連續接住不同元素可觸發 <b>彼此搭配 Combo</b> 分數加倍！切記避開「孤軍作戰」！
         </div>
-        <button onclick="startGame()">開始灌溉</button>
+        <button class="start-btn" ontouchstart="startGame()" onclick="startGame()">開始灌溉</button>
     </div>
 
     <div id="game-screen" class="screen" style="padding:0;">
@@ -179,7 +181,7 @@
             「到校學前康復服務-早苗計劃」全賴跨專業團隊與家長、學校緊密攜手，體現機構 8 大價值。<br><br>
             <b>慶祝 YANG 60 周年！</b>
         </div>
-        <button onclick="location.reload()">再玩一次</button>
+        <button class="start-btn" ontouchstart="location.reload()" onclick="location.reload()">再玩一次</button>
     </div>
 
     <script>
@@ -219,141 +221,7 @@
             if (e.key === 'ArrowRight') moveRight = false;
         });
 
-        // 觸控事件優化
-        document.getElementById('left-ctrl').addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
-        document.getElementById('left-ctrl').addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
-        document.getElementById('right-ctrl').addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
-        document.getElementById('right-ctrl').addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
-
-        // 滑鼠點擊相容（方便電腦測試）
-        document.getElementById('left-ctrl').addEventListener('mousedown', () => moveLeft = true);
-        document.getElementById('left-ctrl').addEventListener('mouseup', () => moveLeft = false);
-        document.getElementById('right-ctrl').addEventListener('mousedown', () => moveRight = true);
-        document.getElementById('right-ctrl').addEventListener('mouseup', () => moveRight = false);
-
-        function startGame() {
-            startScreen.classList.remove('active');
-            endScreen.classList.remove('active');
-            gameScreen.classList.add('active');
-            
-            score = 0;
-            basketX = 50;
-            items.forEach(item => item.el.remove());
-            items = [];
-            lastItemType = '';
-            scoreVal.innerText = score;
-            stageText.innerText = '種子 🌱';
-            gameActive = true;
-
-            gameLoopInterval = setInterval(gameLoop, 16);
-            spawnInterval = setInterval(spawnItem, 1000); // 加快生成速度至 1 秒
-        }
-
-        function gameLoop() {
-            if (!gameActive) return;
-
-            if (moveLeft && basketX > 15) basketX -= basketSpeed;
-            if (moveRight && basketX < 85) basketX += basketSpeed;
-            basket.style.left = basketX + '%';
-
-            const areaHeight = gameArea.clientHeight;
-            const basketRect = basket.getBoundingClientRect();
-
-            for (let i = items.length - 1; i >= 0; i--) {
-                let item = items[i];
-                item.y += item.speed;
-                item.el.style.top = item.y + 'px';
-
-                let itemRect = item.el.getBoundingClientRect();
-                
-                // 擴大手機端的判定範圍，讓遊戲更好玩
-                if (
-                    itemRect.bottom >= basketRect.top &&
-                    itemRect.top <= basketRect.bottom &&
-                    itemRect.right >= (basketRect.left - 10) &&
-                    itemRect.left <= (basketRect.right + 10)
-                ) {
-                    handleCatch(item);
-                    item.el.remove();
-                    items.splice(i, 1);
-                    continue;
-                }
-
-                if (item.y > areaHeight) {
-                    item.el.remove();
-                    items.splice(i, 1);
-                }
-            }
-        }
-
-        function spawnItem() {
-            if (!gameActive) return;
-
-            const proto = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-            const el = document.createElement('div');
-            el.className = 'falling-item';
-            el.innerText = proto.icon;
-            
-            const areaWidth = gameArea.clientWidth || window.innerWidth;
-            const randomX = Math.floor(Math.random() * (Math.min(areaWidth, 450) - 50)) + 10;
-            el.style.left = randomX + 'px';
-            el.style.top = '-50px';
-            
-            gameArea.appendChild(el);
-
-            items.push({
-                el: el,
-                x: randomX,
-                y: -50,
-                speed: Math.random() * 2 + 4, 
-                type: proto.type,
-                score: proto.score
-            });
-        }
-
-        function handleCatch(item) {
-            if (item.type === 'bad') {
-                score += item.score;
-                lastItemType = '';
-                comboText.style.display = 'none';
-            } else {
-                if (lastItemType && lastItemType !== item.type) {
-                    score += item.score * 2; 
-                    showCombo();
-                } else {
-                    score += item.score;
-                }
-                lastItemType = item.type;
-            }
-
-            if (score < 0) score = 0;
-            scoreVal.innerText = score;
-
-            if (score >= 7 && score < 15) stageText.innerText = '嫩芽 🌿';
-            if (score >= 15) stageText.innerText = '小樹 🌳';
-
-            if (score >= 20) {
-                endGame();
-            }
-        }
-
-        function showCombo() {
-            comboText.style.display = 'block';
-            setTimeout(() => {
-                if (gameActive) comboText.style.display = 'none';
-            }, 800);
-        }
-
-        function endGame() {
-            gameActive = false;
-            clearInterval(gameLoopInterval);
-            clearInterval(spawnInterval);
-            
-            setTimeout(() => {
-                gameScreen.classList.remove('active');
-                endScreen.classList.add('active');
-            }, 500);
-        }
-    </script>
-</body>
-</html>
+        // 僅在遊戲控制區域限制預防預設事件，避免影響按鈕
+        document.getElementById('left-ctrl').addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; }, {passive: false});
+        document.getElementById('left-ctrl').addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; }, {passive: false});
+        document.getElementById('right-ctrl').addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true;
