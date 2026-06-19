@@ -20,12 +20,16 @@
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
+            /* 修正手機全螢幕高度問題 */
+            height: 100vh;
+            height: 100dvh;
         }
         .screen {
             display: none;
             position: absolute;
             width: 100%;
             height: 100vh;
+            height: 100dvh; /* 隨手機工具列動態縮放 */
             box-sizing: border-box;
             padding: 20px;
             flex-direction: column;
@@ -69,15 +73,20 @@
             width: 100%;
             max-width: 450px;
             height: 100vh;
+            height: 100dvh; /* 確保遊戲主區塊不超出手機畫面 */
             background: linear-gradient(to bottom, #e3f2fd, #f1f8e9);
             border-bottom: 10px solid #8d6e63;
             overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 0 auto;
         }
         
+        /* 🛠️ 修正手機頂部留白，防止狀態列遮擋 */
         #ui-layer {
             position: absolute;
-            top: 10px;
+            top: 15px;
+            /* 針對有瀏海的手機增加安全區域留白 */
+            top: calc(15px + env(safe-area-inset-top, 0px));
             width: 100%;
             display: flex;
             justify-content: space-between;
@@ -91,7 +100,8 @@
 
         #combo-text {
             position: absolute;
-            top: 40px;
+            top: 55px;
+            top: calc(55px + env(safe-area-inset-top, 0px));
             width: 100%;
             text-align: center;
             font-size: 18px;
@@ -100,9 +110,11 @@
             display: none;
         }
 
+        /* 🛠️ 修正接物籃位置：確保在手機瀏覽器底部工具列上方可見 */
         #basket {
             position: absolute;
-            bottom: 30px;
+            bottom: 45px; /* 提高底部留白，防工具列阻擋 */
+            bottom: calc(45px + env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%);
             width: 120px;
@@ -120,7 +132,6 @@
             z-index: 3;
         }
 
-        /* 🛠️ 優化後的掉落物件：自動適應文字寬度，並以中心為基準點下落 */
         .falling-item {
             position: absolute;
             width: max-content; 
@@ -130,7 +141,7 @@
             justify-content: center;
             align-items: center;
             z-index: 2;
-            transform: translateX(-50%); /* 確保物件中心與隨機X軸完全對齊 */
+            transform: translateX(-50%);
         }
         .item-icon {
             font-size: 26px;
@@ -143,7 +154,7 @@
             padding: 3px 6px;
             border-radius: 6px;
             margin-top: 4px;
-            white-space: nowrap; /* 確保文字絕不換行被切斷 */
+            white-space: nowrap;
             color: #1b5e20;
             box-shadow: 0 1px 4px rgba(0,0,0,0.15);
         }
@@ -157,6 +168,7 @@
             bottom: 0;
             width: 50%;
             height: 100vh;
+            height: 100dvh;
             z-index: 4;
             background: rgba(0,0,0,0);
             -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -292,7 +304,6 @@
 
                 let itemRect = item.el.getBoundingClientRect();
                 
-                // 🛠️ 使用最新標準的動態交疊碰撞檢測（AABB），完美配合文字伸縮寬度
                 if (
                     itemRect.bottom >= basketRect.top &&
                     itemRect.top <= basketRect.bottom &&
@@ -327,7 +338,6 @@
             const areaWidth = gameArea.clientWidth || window.innerWidth;
             const maxRange = Math.min(areaWidth, 450);
             
-            // 🛠️ 調整生成邊界（兩邊各預留 60px），防止長文本在螢幕邊緣出生時被切掉
             const randomX = Math.floor(Math.random() * (maxRange - 120)) + 60;
             el.style.left = randomX + 'px';
             el.style.top = '-80px';
